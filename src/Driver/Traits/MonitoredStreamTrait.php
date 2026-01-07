@@ -43,13 +43,17 @@ trait MonitoredStreamTrait
     use SerializerAwareTrait;
     use MessageMultiprocessingTrait;
 
+    private const int PENDING_COUNT_BUFFER = 10;
+
+    private const int DEFAULT_TTL = 60;
+
     private string $monitorHashRedisKey;
 
     private string $myIdentifier;
 
     private RedisProxy $redis;
 
-    private int $keepAliveTTL = 60;
+    private int $keepAliveTTL = self::DEFAULT_TTL;
 
     private int $maximumMessageClaims = MonitoredStreamInterface::XCLAIM_RETRIES;
 
@@ -76,7 +80,7 @@ trait MonitoredStreamTrait
     private function initMonitoredStream(
         string $monitorHashRedisKey,
         string $myIdentifier,
-        int $keepAliveTTL = 60
+        int $keepAliveTTL = self::DEFAULT_TTL
     ): void {
         $this->myIdentifier = $myIdentifier;
         $this->monitorHashRedisKey = $monitorHashRedisKey;
@@ -227,7 +231,13 @@ trait MonitoredStreamTrait
                             $stream = $monitoredConsumers[$consumer]['body']['stream'] ?? null;
                         }
 
-                        $pendingMessages = $this->getConsumerPendingList($queue, $group, $consumer, $pending + 10, $id);
+                        $pendingMessages = $this->getConsumerPendingList(
+                            $queue,
+                            $group,
+                            $consumer,
+                            $pending + self::PENDING_COUNT_BUFFER,
+                            $id
+                        );
                         $foundId = false;
 
                         foreach ($pendingMessages as $pendingMessage) {
@@ -338,7 +348,7 @@ trait MonitoredStreamTrait
                                 $queue,
                                 $group,
                                 $consumerUUID,
-                                $consumerData['pending'] + 10,
+                                $consumerData['pending'] + self::PENDING_COUNT_BUFFER,
                             );
                             foreach ($pendingMessages as $pendingMessage) {
                                 $messageId = $pendingMessage['id'];
@@ -367,7 +377,7 @@ trait MonitoredStreamTrait
                                 $queue,
                                 $group,
                                 $consumerUUID,
-                                $consumerData['pending'] + 10,
+                                $consumerData['pending'] + self::PENDING_COUNT_BUFFER,
                                 $id,
                             );
 
@@ -528,7 +538,7 @@ trait MonitoredStreamTrait
                     continue;
                 }
                 foreach ($fields as $field => $value) {
-                    if (!preg_match($pattern, $field, $matches)) {
+                    if (preg_match($pattern, $field, $matches) !== 1) {
                         continue;
                     }
                     $consumerUUID = $matches['uuid'];

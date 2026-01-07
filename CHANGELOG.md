@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - update symfony console library & PHP version to 8.4 [BC]
+- update code to pass PHP Stan level 9
 
 ## [2.1.0] - 2025-10-02
 ### Added
