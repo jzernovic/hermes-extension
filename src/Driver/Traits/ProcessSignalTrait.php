@@ -24,8 +24,6 @@ trait ProcessSignalTrait
             $newHandler = function (int $signal, $signalInfo) use ($originalHandler) {
                 $this->internalSignalHandler();
                 if (is_callable($originalHandler)) {
-                    // PCNTL signal handlers are invoked with signal metadata, but PHPStan sees a generic callable here.
-                    // @phpstan-ignore-next-line arguments.count
                     $originalHandler($signal, $signalInfo);
                 }
             };
