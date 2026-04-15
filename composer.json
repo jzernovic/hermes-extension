@@ -9,7 +9,7 @@
         "ext-posix": "*",
         "ext-pcntl": "*",
         "ext-filter": "*",
-        "tomaj/hermes": "^4.0",
+        "tomaj/hermes": "^5.0.0",
         "lulco/redis-proxy": "^1.5.0",
         "symfony/console": "^8.0"
     },
